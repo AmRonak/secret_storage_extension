@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Secret Storage Extension",
+  "version": "1.0",
+  "description": "A Google Chrome extension that securely stores a user secret.",
+  "icons": {
+    "48": "logo192.png"
+  },
+  "action": {
+    "default_icon": "logo192.png",
+    "default_popup": "index.html",
+    "default_title": "Secret Storage"
+  },
+  "permissions": []
+}
