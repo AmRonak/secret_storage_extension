@@ -1,8 +1,10 @@
-import { useState } from "react";
 import InitializeForm from "./InitializeForm";
+import {useEffect} from 'react';
 import LoginForm from "./LoginForm";
 import SecretView from "./SecretView";
 import { Button } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { setEncryptedSecret, setInitialized, setLoggedIn, setPassword, setSecret } from "./slices/userSlice";
 
 const Popup = () => {
   const isInitialized = localStorage.getItem('isInitialized');
@@ -11,47 +13,20 @@ const Popup = () => {
   const userEncryptedSecret = localStorage.getItem('encryptedSecret');
   const userPassword = localStorage.getItem('password');
 
-  const [initialized, setInitialized] = useState(isInitialized);
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
-  const [encryptedSecret, setEncryptedSecret] = useState(userEncryptedSecret);
-  const [secret, setSecret] = useState(userSecret);
-  const [password, setPassword] = useState(userPassword);
-
-  const handleInitialization = (newEncryptedSecret) => {
-    setEncryptedSecret(newEncryptedSecret);
-    setInitialized(true);
-    localStorage.setItem('isInitialized', true);
-    localStorage.setItem('encryptedSecret', newEncryptedSecret);
-  };
-
-  const handleLoginSuccess = (secret, password) => {
-    setSecret(secret);
-    setPassword(password);
-    setLoggedIn(true);
-    localStorage.setItem('password', password);
-    localStorage.setItem('isLoggedIn', true);
-    localStorage.setItem('secret', secret);
-  };
-
-  const handleLogout = () => {
-    setLoggedIn(false);
-    setSecret(null);
-    setPassword(null);
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('secret');
-    localStorage.removeItem('password');
-  };
-
-  const handleUpdateSecret = (newEncryptedSecret, newSecret) => {
-    setEncryptedSecret(newEncryptedSecret);
-    setSecret(newSecret);
-    localStorage.setItem('encryptedSecret', newEncryptedSecret);
-    localStorage.setItem('secret', newSecret);
-  };
+  const { initialized, loggedIn } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    dispatch(setEncryptedSecret(userEncryptedSecret));
+    dispatch(setInitialized(isInitialized));
+    dispatch(setSecret(userSecret));
+    dispatch(setPassword(userPassword));
+    dispatch(setLoggedIn(isLoggedIn));
+   }, [dispatch, isInitialized, isLoggedIn, userEncryptedSecret, userPassword, userSecret]);
 
   const handleReset = () => {
-    setInitialized(false);
-    setEncryptedSecret(null);
+    dispatch(setInitialized(false));
+    dispatch(setEncryptedSecret(null));
     localStorage.removeItem('isInitialized', false);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('secret');
@@ -68,18 +43,11 @@ const Popup = () => {
       }}
     >
       {!initialized ? (
-        <InitializeForm onInitialization={handleInitialization} />
+        <InitializeForm />
       ) : !loggedIn ? (
-        <LoginForm
-          encryptedSecret={encryptedSecret}
-          onLoginSuccess={handleLoginSuccess}
-        />
+        <LoginForm />
       ) : (
         <SecretView
-          secret={secret}
-          password={password}
-          onLogout={handleLogout}
-          onUpdateSecret={handleUpdateSecret}
           style={{marginTop: '1rem'}}
         />
       )}

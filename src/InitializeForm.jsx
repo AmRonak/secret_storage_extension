@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { TextField, Button } from "@mui/material";
 import { encryption } from "./generateEncryption";
+import { setEncryptedSecret, setInitialized } from "./slices/userSlice";
+import { useDispatch } from "react-redux";
 
-const InitializeForm = ({ onInitialization }) => {
+const InitializeForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [secret] = useState(encryption.generateSecret());
+  const dispatch = useDispatch();
 
   const handleInitialization = () => {
     if (password === confirmPassword) {
       const encryptedSecret = encryption.encrypt(secret, password);
-      onInitialization(encryptedSecret);
+      dispatch(setEncryptedSecret(encryptedSecret));
+      dispatch(setInitialized(true));
+      localStorage.setItem('isInitialized', true);
+      localStorage.setItem('encryptedSecret', encryptedSecret);
     } else {
       alert("Passwords do not match!");
     }
